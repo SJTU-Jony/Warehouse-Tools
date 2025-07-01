@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库标签粘贴记录系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .radio-option, .checkbox-option {
+            margin-bottom: 8px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .record-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .record-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .record-details {
+            color: #555;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background-color: #ddd;
+            cursor: pointer;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .history-dropdown {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: calc(100% - 2px);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .history-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .history-item:hover {
+            background-color: #f5f5f5;
+        }
+        .quarter-selector {
+            display: flex;
+            gap: 10px;
+        }
+        .quarter-btn {
+            flex: 1;
+            padding: 8px;
+            background-color: #eee;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .quarter-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>仓库标签粘贴记录</h1>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('record')">新增记录</div>
+        <div class="tab" onclick="switchTab('history')">历史记录</div>
+    </div>
+    
+    <div id="record-tab" class="form-container">
+        <form id="label-form">
+            <div class="form-group">
+                <label for="product-id">产品编号/名称</label>
+                <input type="text" id="product-id" required autocomplete="off">
+                <div id="product-history" class="history-dropdown hidden"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="storage-location">仓储位置</label>
+                <input type="text" id="storage-location" required autocomplete="off">
+                <div id="location-history" class="history-dropdown hidden"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">数量</label>
+                <input type="number" id="quantity" min="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="quarter">季度</label>
+                <div class="quarter-selector">
+                    <button type="button" class="quarter-btn" onclick="selectQuarter(1)">一季度</button>
+                    <button type="button" class="quarter-btn" onclick="selectQuarter(2)">二季度</button>
+                    <button type="button" class="quarter-btn" onclick="selectQuarter(3)">三季度</button>
+                    <button type="button" class="quarter-btn" onclick="selectQuarter(4)">四季度</button>
+                </div>
+                <input type="hidden" id="quarter" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="label-type">标签类型</label>
+                <select id="label-type" required>
+                    <option value="">请选择标签类型</option>
+                    <option value="检查合格证">检查合格证</option>
+                    <option value="试验合格证">试验合格证</option>
+                    <option value="检验/试验合格证">检验/试验合格证</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="other-label-container" style="display:none;">
+                <label for="other-label">其他标签类型说明</label>
+                <input type="text" id="other-label">
+            </div>
+            
+            <div class="form-group">
+                <label>粘贴状态</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="status-complete" name="status" value="已完成" checked>
+                        <label for="status-complete">已完成</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="status-partial" name="status" value="部分完成">
+                        <label for="status-partial">部分完成</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="status-pending" name="status" value="待处理">
+                        <label for="status-pending">待处理</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="operator">操作人员</label>
+                <input type="text" id="operator" required autocomplete="off">
+                <div id="operator-history" class="history-dropdown hidden"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">操作日期</label>
+                <input type="date" id="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">备注</label>
+                <textarea id="notes" rows="3"></textarea>
+            </div>
+            
+            <button type="submit">提交记录</button>
+        </form>
+    </div>
+    
+    <div id="history-tab" class="form-container hidden">
+        <div id="records-list">
+            <h3>历史记录</h3>
+            <p id="no-records">暂无记录</p>
+            <!-- 记录将在这里动态添加 -->
+        </div>
+    </div>
+
+    <script>
+        // 初始化日期为今天
+        document.getElementById('date').valueAsDate = new Date();
+        
+        // 显示/隐藏其他标签类型输入框
+        document.getElementById('label-type').addEventListener('change', function() {
+            const otherLabelContainer = document.getElementById('other-label-container');
+            otherLabelContainer.style.display = this.value === '其他' ? 'block' : 'none';
+        });
+        
+        // 切换标签页
+        function switchTab(tabName) {
+            document.getElementById('record-tab').classList.toggle('hidden', tabName !== 'record');
+            document.getElementById('history-tab').classList.toggle('hidden', tabName !== 'history');
+            
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.toggle('active', 
+                    (tabName === 'record' && tab.textContent === '新增记录') || 
+                    (tabName === 'history' && tab.textContent === '历史记录')
+                );
+            });
+            
+            if (tabName === 'history') {
+                loadRecords();
+            }
+        }
+        
+        // 选择季度
+        function selectQuarter(quarter) {
+            document.getElementById('quarter').value = quarter;
+            const btns = document.querySelectorAll('.quarter-btn');
+            btns.forEach((btn, index) => {
+                btn.classList.toggle('active', index === quarter - 1);
+            });
+        }
+        
+        // 初始化季度为当前季度
+        const currentMonth = new Date().getMonth();
+        const currentQuarter = Math.floor(currentMonth / 3) + 1;
+        selectQuarter(currentQuarter);
+        
+        // 输入历史功能
+        const inputFields = ['product-id', 'storage-location', 'operator'];
+        
+        inputFields.forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            const dropdown = document.getElementById(`${fieldId.split('-')[0]}-history`);
+            
+            input.addEventListener('focus', function() {
+                showHistoryDropdown(this, dropdown);
+            });
+            
+            input.addEventListener('input', function() {
+                showHistoryDropdown(this, dropdown);
+            });
+            
+            input.addEventListener('blur', function() {
+                // 延迟隐藏以确保点击选项能触发
+                setTimeout(() => {
+                    dropdown.classList.add('hidden');
+                }, 200);
+            });
+        });
+        
+        function showHistoryDropdown(input, dropdown) {
+            const value = input.value.toLowerCase();
+            const records = JSON.parse(localStorage.getItem('labelRecords') || '[]');
+            
+            // 获取该字段的所有历史值
+            const fieldName = input.id.replace('-', '');
+            const historyValues = [...new Set(records.map(r => r[fieldName]).filter(Boolean)];
+            
+            if (value === '' || historyValues.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            
+            // 过滤匹配的历史记录
+            const filtered = historyValues.filter(item => 
+                item.toLowerCase().includes(value)
+            );
+            
+            if (filtered.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            
+            dropdown.innerHTML = filtered.map(item => 
+                `<div class="history-item" onclick="selectHistoryItem('${input.id}', '${item.replace(/'/g, "\\'")}')">${item}</div>`
+            ).join('');
+            
+            dropdown.classList.remove('hidden');
+        }
+        
+        function selectHistoryItem(inputId, value) {
+            document.getElementById(inputId).value = value;
+            document.getElementById(`${inputId.split('-')[0]}-history`).classList.add('hidden');
+        }
+        
+        // 表单提交
+        document.getElementById('label-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const record = {
+                productId: document.getElementById('product-id').value,
+                storageLocation: document.getElementById('storage-location').value,
+                quantity: document.getElementById('quantity').value,
+                quarter: document.getElementById('quarter').value,
+                labelType: document.getElementById('label-type').value,
+                otherLabel: document.getElementById('label-type').value === '其他' ? 
+                    document.getElementById('other-label').value : '',
+                status: document.querySelector('input[name="status"]:checked').value,
+                operator: document.getElementById('operator').value,
+                date: document.getElementById('date').value,
+                notes: document.getElementById('notes').value,
+                timestamp: new Date().getTime()
+            };
+            
+            saveRecord(record);
+            this.reset();
+            document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('other-label-container').style.display = 'none';
+            selectQuarter(currentQuarter);
+            
+            alert('记录已保存！');
+        });
+        
+        // 保存记录到本地存储
+        function saveRecord(record) {
+            let records = JSON.parse(localStorage.getItem('labelRecords') || '[]');
+            records.push(record);
+            localStorage.setItem('labelRecords', JSON.stringify(records));
+        }
+        
+        // 加载记录
+        function loadRecords() {
+            const records = JSON.parse(localStorage.getItem('labelRecords') || '[]');
+            const recordsList = document.getElementById('records-list');
+            const noRecords = document.getElementById('no-records');
+            
+            // 清除现有记录显示（保留标题和"暂无记录"元素）
+            while (recordsList.children.length > 2) {
+                recordsList.removeChild(recordsList.lastChild);
+            }
+            
+            if (records.length === 0) {
+                noRecords.style.display = 'block';
+                return;
+            }
+            
+            noRecords.style.display = 'none';
+            
+            // 按时间倒序排列
+            records.sort((a, b) => b.timestamp - a.timestamp);
+            
+            records.forEach(record => {
+                const recordElement = document.createElement('div');
+                recordElement.className = 'record-item';
+                
+                const labelTypeDisplay = record.labelType === '其他' ? 
+                    `其他 (${record.otherLabel})` : record.labelType;
+                
+                const quarterMap = {1: '一季度', 2: '二季度', 3: '三季度', 4: '四季度'};
+                const quarterDisplay = quarterMap[record.quarter] || '';
+                
+                recordElement.innerHTML = `
+                    <div class="record-header">
+                        ${record.productId} - ${labelTypeDisplay} (${record.status})
+                    </div>
+                    <div class="record-details">
+                        <div>仓储位置: ${record.storageLocation} | 数量: ${record.quantity} | 季度: ${quarterDisplay}</div>
+                        <div>操作人: ${record.operator} | 日期: ${record.date}</div>
+                        ${record.notes ? `<div>备注: ${record.notes}</div>` : ''}
+                    </div>
+                `;
+                
+                recordsList.appendChild(recordElement);
+            });
+        }
+    </script>
+</body>
+</html>
