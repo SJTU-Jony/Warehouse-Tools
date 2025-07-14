@@ -3,848 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>仓库标签粘贴记录系统</title>
+    <title>仓库快速盘点系统</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 15px;
-            background-color: #f5f5f5;
         }
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 20px;
         }
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .input-section {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
             margin-bottom: 20px;
         }
         .form-group {
-            margin-bottom: 15px;
-            position: relative;
+            margin-bottom: 10px;
         }
         label {
-            display: block;
-            margin-bottom: 5px;
+            display: inline-block;
+            width: 100px;
             font-weight: bold;
         }
-        input[type="text"], input[type="number"], input[type="date"], select, textarea {
-            width: 100%;
-            padding: 10px;
+        input, select {
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .radio-group, .checkbox-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .radio-option, .checkbox-option {
-            margin-bottom: 8px;
+            width: 100px;
         }
         button {
+            padding: 8px 15px;
             background-color: #4CAF50;
             color: white;
-            padding: 12px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background-color 0.3s;
+            margin-right: 10px;
         }
         button:hover {
             background-color: #45a049;
         }
-        .button-secondary {
-            background-color: #6c757d;
-        }
-        .button-secondary:hover {
-            background-color: #5a6268;
-        }
-        .button-danger {
-            background-color: #dc3545;
-        }
-        .button-danger:hover {
-            background-color: #c82333;
-        }
-        .record-item {
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        .record-header {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 18px;
-        }
-        .record-details {
-            color: #555;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        .record-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .hidden {
-            display: none;
-        }
-        .tabs {
-            display: flex;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            margin-right: 5px;
-            border-radius: 5px 5px 0 0;
-            transition: all 0.3s;
-        }
-        .tab:last-child {
-            margin-right: 0;
-        }
-        .tab.active {
-            background-color: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-        .history-dropdown {
-            position: absolute;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: calc(100% - 2px);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 100;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .history-item {
-            padding: 8px 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-        .history-item:hover {
-            background-color: #f5f5f5;
-        }
-        .quarter-selector {
-            display: flex;
-            gap: 10px;
-        }
-        .quarter-btn {
-            flex: 1;
-            padding: 8px;
-            background-color: #eee;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        .quarter-btn.active {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .search-container input {
-            flex: 1;
-        }
-        .filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .filter-group {
-            flex: 1;
-            min-width: 150px;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-        .status-completed {
-            background-color: #28a745;
-            color: white;
-        }
-        .status-partial {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        .status-pending {
-            background-color: #dc3545;
-            color: white;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .pagination button {
-            width: auto;
-            margin: 0 5px;
-        }
-        .no-records {
-            text-align: center;
-            padding: 20px;
-            color: #6c757d;
-        }
-        .confirmation-dialog {
-            position: fixed;
-            top: 0;
-            left: 0;
+        table {
             width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .dialog-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-        }
-        .dialog-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+            border-collapse: collapse;
             margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .action-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .location-input {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        #itemName, #itemModel {
+            width: 200px;
+        }
+        #itemQuantity {
+            width: 80px;
+        }
+        .navigation-buttons {
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <h1>仓库标签粘贴记录系统</h1>
-    
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('record')">新增记录</div>
-        <div class="tab" onclick="switchTab('history')">历史记录</div>
-    </div>
-    
-    <div id="record-tab" class="form-container">
-        <form id="label-form">
-            <div class="form-group">
-                <label for="product-id">产品编号/名称</label>
-                <input type="text" id="product-id" required autocomplete="off">
-                <div id="product-history" class="history-dropdown hidden"></div>
+    <div class="container">
+        <h1>仓库快速盘点系统</h1>
+        
+        <div class="input-section">
+            <div class="navigation-buttons">
+                <button id="prevLocation">上一个位置</button>
+                <button id="nextLocation">下一个位置</button>
             </div>
             
             <div class="form-group">
-                <label for="storage-location">仓储位置</label>
-                <input type="text" id="storage-location" required autocomplete="off">
-                <div id="location-history" class="history-dropdown hidden"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="quantity">数量</label>
-                <input type="number" id="quantity" min="1" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="quarter">季度</label>
-                <div class="quarter-selector">
-                    <button type="button" class="quarter-btn" onclick="selectQuarter(1)">一季度</button>
-                    <button type="button" class="quarter-btn" onclick="selectQuarter(2)">二季度</button>
-                    <button type="button" class="quarter-btn" onclick="selectQuarter(3)">三季度</button>
-                    <button type="button" class="quarter-btn" onclick="selectQuarter(4)">四季度</button>
+                <div class="location-input">
+                    <label for="shelf">货架(X):</label>
+                    <input type="number" id="shelf" min="1" value="1">
                 </div>
-                <input type="hidden" id="quarter" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="label-type">标签类型</label>
-                <select id="label-type" required>
-                    <option value="">请选择标签类型</option>
-                    <option value="检查合格证">检查合格证</option>
-                    <option value="试验合格证">试验合格证</option>
-                    <option value="检验/试验合格证">检验/试验合格证</option>
-                    <option value="其他">其他</option>
-                </select>
-            </div>
-            
-            <div class="form-group" id="other-label-container" style="display:none;">
-                <label for="other-label">其他标签类型说明</label>
-                <input type="text" id="other-label">
-            </div>
-            
-            <div class="form-group">
-                <label>粘贴状态</label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="status-complete" name="status" value="已完成" checked>
-                        <label for="status-complete">已完成</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="status-partial" name="status" value="部分完成">
-                        <label for="status-partial">部分完成</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="status-pending" name="status" value="待处理">
-                        <label for="status-pending">待处理</label>
-                    </div>
+                <div class="location-input">
+                    <label for="level">层(Y):</label>
+                    <input type="number" id="level" min="1" value="1">
+                </div>
+                <div class="location-input">
+                    <label for="section">格(Z):</label>
+                    <select id="section">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+                    </select>
                 </div>
             </div>
             
             <div class="form-group">
-                <label for="operator">操作人员</label>
-                <input type="text" id="operator" required autocomplete="off">
-                <div id="operator-history" class="history-dropdown hidden"></div>
+                <label for="itemName">物资名称:</label>
+                <input type="text" id="itemName" placeholder="请输入物资名称">
             </div>
             
             <div class="form-group">
-                <label for="date">操作日期</label>
-                <input type="date" id="date" required>
+                <label for="itemQuantity">数量:</label>
+                <input type="number" id="itemQuantity" min="0" value="1">
             </div>
             
             <div class="form-group">
-                <label for="notes">备注</label>
-                <textarea id="notes" rows="3"></textarea>
+                <label for="itemModel">型号(可选):</label>
+                <input type="text" id="itemModel" placeholder="请输入型号">
             </div>
             
-            <button type="submit">提交记录</button>
-        </form>
-    </div>
-    
-    <div id="history-tab" class="form-container hidden">
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="搜索产品编号、名称或仓储位置..." autocomplete="off">
-            <button type="button" class="button-secondary" onclick="loadRecords()">搜索</button>
+            <button id="addItem">添加记录</button>
+            <button id="clearItem">清除当前输入</button>
         </div>
         
-        <div class="filter-container">
-            <div class="filter-group">
-                <label for="filter-quarter">季度筛选</label>
-                <select id="filter-quarter" onchange="loadRecords()">
-                    <option value="">全部季度</option>
-                    <option value="1">一季度</option>
-                    <option value="2">二季度</option>
-                    <option value="3">三季度</option>
-                    <option value="4">四季度</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="filter-status">状态筛选</label>
-                <select id="filter-status" onchange="loadRecords()">
-                    <option value="">全部状态</option>
-                    <option value="已完成">已完成</option>
-                    <option value="部分完成">部分完成</option>
-                    <option value="待处理">待处理</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="filter-label-type">标签类型筛选</label>
-                <select id="filter-label-type" onchange="loadRecords()">
-                    <option value="">全部类型</option>
-                    <option value="检查合格证">检查合格证</option>
-                    <option value="试验合格证">试验合格证</option>
-                    <option value="检验/试验合格证">检验/试验合格证</option>
-                    <option value="其他">其他</option>
-                </select>
-            </div>
+        <div class="action-buttons">
+            <button id="exportExcel">导出Excel</button>
+            <button id="exportCSV">导出CSV</button>
+            <button id="clearAll">清除所有记录</button>
         </div>
         
-        <div id="records-list">
-            <h3>历史记录</h3>
-            <p id="no-records" class="no-records">正在加载记录...</p>
-            <!-- 记录将在这里动态添加 -->
-        </div>
-        
-        <div class="pagination hidden" id="pagination">
-            <button type="button" class="button-secondary" id="prev-page" disabled>上一页</button>
-            <span id="page-info">第 1 页</span>
-            <button type="button" class="button-secondary" id="next-page">下一页</button>
-        </div>
-    </div>
-
-    <div id="confirmation-dialog" class="confirmation-dialog">
-        <div class="dialog-content">
-            <h3 id="dialog-title">确认删除</h3>
-            <p id="dialog-message">您确定要删除这条记录吗？此操作无法撤销。</p>
-            <div class="dialog-actions">
-                <button type="button" class="button-secondary" onclick="hideConfirmationDialog()">取消</button>
-                <button type="button" class="button-danger" id="confirm-action-btn">确认</button>
-            </div>
-        </div>
+        <table id="inventoryTable">
+            <thead>
+                <tr>
+                    <th>位置(X-Y-Z)</th>
+                    <th>物资名称</th>
+                    <th>数量</th>
+                    <th>型号</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryBody">
+                <!-- 数据将在这里动态添加 -->
+            </tbody>
+        </table>
     </div>
 
     <script>
-        // 全局变量
-        let currentPage = 1;
-        const recordsPerPage = 10;
-        let currentRecords = [];
-        let recordToDelete = null;
+        // 初始化库存数据
+        let inventoryData = JSON.parse(localStorage.getItem('inventoryData')) || [];
         
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化日期为今天
-            document.getElementById('date').valueAsDate = new Date();
-            
-            // 初始化季度为当前季度
-            const currentMonth = new Date().getMonth();
-            const currentQuarter = Math.floor(currentMonth / 3) + 1;
-            selectQuarter(currentQuarter);
-            
-            // 设置分页事件
-            document.getElementById('prev-page').addEventListener('click', function() {
-                if (currentPage > 1) {
-                    currentPage--;
-                    loadRecords();
-                }
-            });
-            
-            document.getElementById('next-page').addEventListener('click', function() {
-                currentPage++;
-                loadRecords();
-            });
-            
-            // 搜索输入框回车事件
-            document.getElementById('search-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    loadRecords();
-                }
-            });
-            
-            // 确认删除按钮事件
-            document.getElementById('confirm-action-btn').addEventListener('click', function() {
-                deleteRecord();
-            });
-            
-            // 如果直接打开历史标签页，加载记录
-            if (window.location.hash === '#history') {
-                switchTab('history');
-            }
-        });
+        // DOM元素
+        const shelfInput = document.getElementById('shelf');
+        const levelInput = document.getElementById('level');
+        const sectionInput = document.getElementById('section');
+        const itemNameInput = document.getElementById('itemName');
+        const itemQuantityInput = document.getElementById('itemQuantity');
+        const itemModelInput = document.getElementById('itemModel');
+        const addItemBtn = document.getElementById('addItem');
+        const clearItemBtn = document.getElementById('clearItem');
+        const exportExcelBtn = document.getElementById('exportExcel');
+        const exportCSVBtn = document.getElementById('exportCSV');
+        const clearAllBtn = document.getElementById('clearAll');
+        const inventoryBody = document.getElementById('inventoryBody');
+        const prevLocationBtn = document.getElementById('prevLocation');
+        const nextLocationBtn = document.getElementById('nextLocation');
         
-        // 显示/隐藏其他标签类型输入框
-        document.getElementById('label-type').addEventListener('change', function() {
-            const otherLabelContainer = document.getElementById('other-label-container');
-            otherLabelContainer.style.display = this.value === '其他' ? 'block' : 'none';
-            if (this.value !== '其他') {
-                document.getElementById('other-label').value = '';
-            }
-        });
-        
-        // 切换标签页
-        function switchTab(tabName) {
-            document.getElementById('record-tab').classList.toggle('hidden', tabName !== 'record');
-            document.getElementById('history-tab').classList.toggle('hidden', tabName !== 'history');
+        // 渲染表格
+        function renderTable() {
+            inventoryBody.innerHTML = '';
             
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                tab.classList.toggle('active', 
-                    (tabName === 'record' && tab.textContent === '新增记录') || 
-                    (tabName === 'history' && tab.textContent === '历史记录')
-                );
-            });
-            
-            if (tabName === 'history') {
-                currentPage = 1;
-                loadRecords();
-            }
-            
-            // 更新URL hash
-            window.location.hash = tabName === 'history' ? 'history' : '';
-        }
-        
-        // 选择季度
-        function selectQuarter(quarter) {
-            document.getElementById('quarter').value = quarter;
-            const btns = document.querySelectorAll('.quarter-btn');
-            btns.forEach((btn, index) => {
-                btn.classList.toggle('active', index === quarter - 1);
-            });
-        }
-        
-        // 输入历史功能
-        const inputFields = ['product-id', 'storage-location', 'operator'];
-        
-        inputFields.forEach(fieldId => {
-            const input = document.getElementById(fieldId);
-            const dropdown = document.getElementById(`${fieldId.split('-')[0]}-history`);
-            
-            input.addEventListener('focus', function() {
-                showHistoryDropdown(this, dropdown);
-            });
-            
-            input.addEventListener('input', function() {
-                showHistoryDropdown(this, dropdown);
-            });
-            
-            input.addEventListener('blur', function() {
-                // 延迟隐藏以确保点击选项能触发
-                setTimeout(() => {
-                    dropdown.classList.add('hidden');
-                }, 200);
-            });
-        });
-        
-        function showHistoryDropdown(input, dropdown) {
-            const value = input.value.toLowerCase();
-            const records = JSON.parse(localStorage.getItem('labelRecords') || '[]');
-            
-            // 获取该字段的所有历史值
-            const fieldName = input.id.replace('-', '');
-            const historyValues = [...new Set(records.map(r => r[fieldName]).filter(Boolean))];
-            
-            if (value === '' || historyValues.length === 0) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-            
-            // 过滤匹配的历史记录
-            const filtered = historyValues.filter(item => 
-                item.toLowerCase().includes(value)
-            );
-            
-            if (filtered.length === 0) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-            
-            dropdown.innerHTML = filtered.map(item => 
-                `<div class="history-item" onclick="selectHistoryItem('${input.id}', '${item.replace(/'/g, "\\'")}')">${item}</div>`
-            ).join('');
-            
-            dropdown.classList.remove('hidden');
-        }
-        
-        function selectHistoryItem(inputId, value) {
-            document.getElementById(inputId).value = value;
-            document.getElementById(`${inputId.split('-')[0]}-history`).classList.add('hidden');
-        }
-        
-        // 表单提交
-        document.getElementById('label-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // 验证表单
-            if (!validateForm()) {
-                return;
-            }
-            
-            const record = {
-                productId: document.getElementById('product-id').value.trim(),
-                storageLocation: document.getElementById('storage-location').value.trim(),
-                quantity: parseInt(document.getElementById('quantity').value),
-                quarter: document.getElementById('quarter').value,
-                labelType: document.getElementById('label-type').value,
-                otherLabel: document.getElementById('label-type').value === '其他' ? 
-                    document.getElementById('other-label').value.trim() : '',
-                status: document.querySelector('input[name="status"]:checked').value,
-                operator: document.getElementById('operator').value.trim(),
-                date: document.getElementById('date').value,
-                notes: document.getElementById('notes').value.trim(),
-                timestamp: new Date().getTime()
-            };
-            
-            saveRecord(record);
-            this.reset();
-            document.getElementById('date').valueAsDate = new Date();
-            document.getElementById('other-label-container').style.display = 'none';
-            
-            // 重置季度为当前季度
-            const currentMonth = new Date().getMonth();
-            const currentQuarter = Math.floor(currentMonth / 3) + 1;
-            selectQuarter(currentQuarter);
-            
-            showAlert('记录已保存！', 'success');
-        });
-        
-        // 表单验证
-        function validateForm() {
-            const productId = document.getElementById('product-id').value.trim();
-            const storageLocation = document.getElementById('storage-location').value.trim();
-            const quantity = document.getElementById('quantity').value;
-            const quarter = document.getElementById('quarter').value;
-            const labelType = document.getElementById('label-type').value;
-            const operator = document.getElementById('operator').value.trim();
-            const date = document.getElementById('date').value;
-            
-            if (!productId) {
-                showAlert('请输入产品编号/名称', 'error');
-                return false;
-            }
-            
-            if (!storageLocation) {
-                showAlert('请输入仓储位置', 'error');
-                return false;
-            }
-            
-            if (!quantity || parseInt(quantity) < 1) {
-                showAlert('请输入有效的数量', 'error');
-                return false;
-            }
-            
-            if (!quarter) {
-                showAlert('请选择季度', 'error');
-                return false;
-            }
-            
-            if (!labelType) {
-                showAlert('请选择标签类型', 'error');
-                return false;
-            }
-            
-            if (labelType === '其他' && !document.getElementById('other-label').value.trim()) {
-                showAlert('请输入其他标签类型说明', 'error');
-                return false;
-            }
-            
-            if (!operator) {
-                showAlert('请输入操作人员', 'error');
-                return false;
-            }
-            
-            if (!date) {
-                showAlert('请选择操作日期', 'error');
-                return false;
-            }
-            
-            // 检查日期是否在未来（修复版）
-            const selectedDate = new Date(date);
-            selectedDate.setHours(0, 0, 0, 0); // 将选择日期的时、分、秒、毫秒归零
-            
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // 将今天的时、分、秒、毫秒归零
-            
-            if (selectedDate > today) {
-                showAlert('操作日期不能是未来日期', 'error');
-                return false;
-            }
-            
-            return true;
-        }
-        
-        // 显示提示信息
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.textContent = message;
-            alertDiv.style.position = 'fixed';
-            alertDiv.style.top = '20px';
-            alertDiv.style.left = '50%';
-            alertDiv.style.transform = 'translateX(-50%)';
-            alertDiv.style.padding = '10px 20px';
-            alertDiv.style.borderRadius = '4px';
-            alertDiv.style.zIndex = '1000';
-            alertDiv.style.color = 'white';
-            alertDiv.style.fontWeight = 'bold';
-            
-            if (type === 'success') {
-                alertDiv.style.backgroundColor = '#28a745';
-            } else {
-                alertDiv.style.backgroundColor = '#dc3545';
-            }
-            
-            document.body.appendChild(alertDiv);
-            
-            setTimeout(() => {
-                alertDiv.style.transition = 'opacity 0.5s';
-                alertDiv.style.opacity = '0';
-                setTimeout(() => {
-                    document.body.removeChild(alertDiv);
-                }, 500);
-            }, 3000);
-        }
-        
-        // 保存记录到本地存储
-        function saveRecord(record) {
-            let records = JSON.parse(localStorage.getItem('labelRecords') || '[]');
-            records.push(record);
-            localStorage.setItem('labelRecords', JSON.stringify(records));
-        }
-        
-        // 加载记录
-        function loadRecords() {
-            const records = JSON.parse(localStorage.getItem('labelRecords') || '[]');
-            const recordsList = document.getElementById('records-list');
-            const noRecords = document.getElementById('no-records');
-            const pagination = document.getElementById('pagination');
-            
-            // 获取筛选条件
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filterQuarter = document.getElementById('filter-quarter').value;
-            const filterStatus = document.getElementById('filter-status').value;
-            const filterLabelType = document.getElementById('filter-label-type').value;
-            
-            // 筛选记录
-            let filteredRecords = records.filter(record => {
-                // 搜索条件
-                const matchesSearch = searchTerm === '' || 
-                    record.productId.toLowerCase().includes(searchTerm) || 
-                    record.storageLocation.toLowerCase().includes(searchTerm);
+            inventoryData.forEach((item, index) => {
+                const row = document.createElement('tr');
                 
-                // 季度筛选
-                const matchesQuarter = filterQuarter === '' || record.quarter === filterQuarter;
-                
-                // 状态筛选
-                const matchesStatus = filterStatus === '' || record.status === filterStatus;
-                
-                // 标签类型筛选
-                let matchesLabelType = true;
-                if (filterLabelType !== '') {
-                    if (filterLabelType === '其他') {
-                        matchesLabelType = record.labelType === '其他';
-                    } else {
-                        matchesLabelType = record.labelType === filterLabelType && record.labelType !== '其他';
-                    }
-                }
-                
-                return matchesSearch && matchesQuarter && matchesStatus && matchesLabelType;
-            });
-            
-            // 保存当前记录用于分页
-            currentRecords = filteredRecords;
-            
-            // 按时间倒序排列
-            filteredRecords.sort((a, b) => b.timestamp - a.timestamp);
-            
-            // 计算分页
-            const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-            const startIndex = (currentPage - 1) * recordsPerPage;
-            const endIndex = Math.min(startIndex + recordsPerPage, filteredRecords.length);
-            const paginatedRecords = filteredRecords.slice(startIndex, endIndex);
-            
-            // 清除现有记录显示（保留标题和"暂无记录"元素）
-            while (recordsList.children.length > 2) {
-                recordsList.removeChild(recordsList.lastChild);
-            }
-            
-            if (filteredRecords.length === 0) {
-                noRecords.textContent = '没有找到匹配的记录';
-                noRecords.style.display = 'block';
-                pagination.classList.add('hidden');
-                return;
-            }
-            
-            noRecords.style.display = 'none';
-            
-            // 显示记录
-            paginatedRecords.forEach(record => {
-                const recordElement = document.createElement('div');
-                recordElement.className = 'record-item';
-                
-                const labelTypeDisplay = record.labelType === '其他' ? 
-                    `其他 (${record.otherLabel})` : record.labelType;
-                
-                const quarterMap = {1: '一季度', 2: '二季度', 3: '三季度', 4: '四季度'};
-                const quarterDisplay = quarterMap[record.quarter] || '';
-                
-                // 状态徽章
-                let statusClass = '';
-                if (record.status === '已完成') statusClass = 'status-completed';
-                else if (record.status === '部分完成') statusClass = 'status-partial';
-                else if (record.status === '待处理') statusClass = 'status-pending';
-                
-                recordElement.innerHTML = `
-                    <div class="record-header">
-                        ${record.productId} - ${labelTypeDisplay}
-                        <span class="status-badge ${statusClass}">${record.status}</span>
-                    </div>
-                    <div class="record-details">
-                        <div><strong>仓储位置:</strong> ${record.storageLocation}</div>
-                        <div><strong>数量:</strong> ${record.quantity} | <strong>季度:</strong> ${quarterDisplay}</div>
-                        <div><strong>操作人:</strong> ${record.operator} | <strong>日期:</strong> ${formatDate(record.date)}</div>
-                        ${record.notes ? `<div><strong>备注:</strong> ${record.notes}</div>` : ''}
-                    </div>
-                    <div class="record-actions">
-                        <button type="button" class="button-danger" onclick="confirmDeleteRecord(${record.timestamp})">删除</button>
-                    </div>
+                row.innerHTML = `
+                    <td>${item.location}</td>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.model || '-'}</td>
+                    <td>
+                        <button onclick="editItem(${index})">编辑</button>
+                        <button onclick="deleteItem(${index})">删除</button>
+                    </td>
                 `;
                 
-                recordsList.appendChild(recordElement);
+                inventoryBody.appendChild(row);
             });
-            
-            // 更新分页控件
-            updatePaginationControls(totalPages);
         }
         
-        // 格式化日期
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-        
-        // 更新分页控件
-        function updatePaginationControls(totalPages) {
-            const pagination = document.getElementById('pagination');
-            const prevButton = document.getElementById('prev-page');
-            const nextButton = document.getElementById('next-page');
-            const pageInfo = document.getElementById('page-info');
+        // 添加新记录
+        function addItem() {
+            const shelf = shelfInput.value;
+            const level = levelInput.value;
+            const section = sectionInput.value;
+            const name = itemNameInput.value.trim();
+            const quantity = itemQuantityInput.value;
+            const model = itemModelInput.value.trim();
             
-            if (currentRecords.length <= recordsPerPage) {
-                pagination.classList.add('hidden');
+            if (!name) {
+                alert('请输入物资名称');
                 return;
             }
             
-            pagination.classList.remove('hidden');
-            prevButton.disabled = currentPage === 1;
-            nextButton.disabled = currentPage === totalPages;
-            pageInfo.textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页`;
+            if (!quantity || quantity <= 0) {
+                alert('请输入有效的数量');
+                return;
+            }
+            
+            const location = `${shelf}-${level}-${section}`;
+            
+            inventoryData.push({
+                location,
+                name,
+                quantity,
+                model
+            });
+            
+            // 保存到本地存储
+            localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+            
+            // 清空输入框
+            clearInputs();
+            
+            // 渲染表格
+            renderTable();
+            
+            // 自动跳到下一个位置
+            nextLocation();
         }
         
-        // 确认删除记录
-        function confirmDeleteRecord(timestamp) {
-            recordToDelete = timestamp;
-            showConfirmationDialog(
-                '确认删除',
-                '您确定要删除这条记录吗？此操作无法撤销。'
-            );
+        // 编辑记录
+        function editItem(index) {
+            const item = inventoryData[index];
+            const [shelf, level, section] = item.location.split('-');
+            
+            shelfInput.value = shelf;
+            levelInput.value = level;
+            sectionInput.value = section;
+            itemNameInput.value = item.name;
+            itemQuantityInput.value = item.quantity;
+            itemModelInput.value = item.model || '';
+            
+            // 删除原记录
+            inventoryData.splice(index, 1);
+            localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+            renderTable();
         }
         
         // 删除记录
-        function deleteRecord() {
-            let records = JSON.parse(localStorage.getItem('labelRecords') || '[]');
-            records = records.filter(record => record.timestamp != recordToDelete);
-            localStorage.setItem('labelRecords', JSON.stringify(records));
+        function deleteItem(index) {
+            if (confirm('确定要删除这条记录吗？')) {
+                inventoryData.splice(index, 1);
+                localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+                renderTable();
+            }
+        }
+        
+        // 清空输入
+        function clearInputs() {
+            itemNameInput.value = '';
+            itemQuantityInput.value = '1';
+            itemModelInput.value = '';
+        }
+        
+        // 清空所有记录
+        function clearAll() {
+            if (confirm('确定要清除所有盘点记录吗？此操作不可恢复！')) {
+                inventoryData = [];
+                localStorage.removeItem('inventoryData');
+                renderTable();
+            }
+        }
+        
+        // 导出Excel
+        function exportToExcel() {
+            if (inventoryData.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
             
-            // 重新加载记录
-            loadRecords();
-            showAlert('记录已删除', 'success');
-            hideConfirmationDialog();
+            // 准备数据
+            const exportData = inventoryData.map(item => ({
+                '位置(X-Y-Z)': item.location,
+                '物资名称': item.name,
+                '数量': item.quantity,
+                '型号': item.model || ''
+            }));
+            
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            
+            // 添加工作表到工作簿
+            XLSX.utils.book_append_sheet(wb, ws, '仓库盘点数据');
+            
+            // 导出文件
+            XLSX.writeFile(wb, `仓库盘点_${new Date().toLocaleDateString()}.xlsx`);
         }
         
-        // 显示确认对话框
-        function showConfirmationDialog(title, message) {
-            document.getElementById('dialog-title').textContent = title;
-            document.getElementById('dialog-message').textContent = message;
-            document.getElementById('confirmation-dialog').style.display = 'flex';
+        // 导出CSV
+        function exportToCSV() {
+            if (inventoryData.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+            
+            // CSV标题行
+            let csv = '位置(X-Y-Z),物资名称,数量,型号\n';
+            
+            // 添加数据行
+            inventoryData.forEach(item => {
+                csv += `"${item.location}","${item.name}",${item.quantity},"${item.model || ''}"\n`;
+            });
+            
+            // 创建下载链接
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `仓库盘点_${new Date().toLocaleDateString()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
-        // 隐藏确认对话框
-        function hideConfirmationDialog() {
-            document.getElementById('confirmation-dialog').style.display = 'none';
+        // 上一个位置
+        function prevLocation() {
+            let section = parseInt(sectionInput.value);
+            let level = parseInt(levelInput.value);
+            let shelf = parseInt(shelfInput.value);
+            
+            if (section > 1) {
+                section--;
+            } else {
+                section = 4;
+                if (level > 1) {
+                    level--;
+                } else {
+                    level = 1;
+                    if (shelf > 1) {
+                        shelf--;
+                    }
+                }
+            }
+            
+            sectionInput.value = section;
+            levelInput.value = level;
+            shelfInput.value = shelf;
         }
+        
+        // 下一个位置
+        function nextLocation() {
+            let section = parseInt(sectionInput.value);
+            let level = parseInt(levelInput.value);
+            let shelf = parseInt(shelfInput.value);
+            
+            if (section < 4) {
+                section++;
+            } else {
+                section = 1;
+                level++;
+                // 假设每货架有固定层数，这里假设为5层
+                if (level > 5) {
+                    level = 1;
+                    shelf++;
+                }
+            }
+            
+            sectionInput.value = section;
+            levelInput.value = level;
+            shelfInput.value = shelf;
+        }
+        
+        // 事件监听
+        addItemBtn.addEventListener('click', addItem);
+        clearItemBtn.addEventListener('click', clearInputs);
+        exportExcelBtn.addEventListener('click', exportToExcel);
+        exportCSVBtn.addEventListener('click', exportToCSV);
+        clearAllBtn.addEventListener('click', clearAll);
+        prevLocationBtn.addEventListener('click', prevLocation);
+        nextLocationBtn.addEventListener('click', nextLocation);
+        
+        // 初始渲染
+        renderTable();
+        
+        // 全局函数
+        window.editItem = editItem;
+        window.deleteItem = deleteItem;
     </script>
 </body>
 </html>
