@@ -1,3 +1,4 @@
+<!-- 修复后的完整HTML结构 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -5,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>手机端物资管理系统</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SheetJS库用于Excel导出 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- 使用ExcelJS库用于Excel导出 -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
     <style>
+        /* 原有CSS样式保持不变 */
         /* 基础重置 */
         * {
             -webkit-tap-highlight-color: transparent;
@@ -16,7 +18,7 @@
             margin: 0;
             padding: 0;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
             background-color: #f5f7fa;
@@ -29,18 +31,18 @@
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
-        
+
         /* 防止移动端双击缩放 */
         * {
             touch-action: manipulation;
         }
-        
+
         /* 容器 */
         .container {
             max-width: 100%;
             margin: 0 auto;
         }
-        
+
         /* 头部 */
         header {
             background: linear-gradient(135deg, #4a6fa5, #3a5980);
@@ -50,7 +52,7 @@
             margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         h1 {
             font-size: 1.5rem;
             margin-bottom: 8px;
@@ -58,17 +60,17 @@
             align-items: center;
             gap: 10px;
         }
-        
+
         h1 i {
             font-size: 1.7rem;
         }
-        
+
         .subtitle {
             font-size: 0.85rem;
             opacity: 0.9;
             line-height: 1.4;
         }
-        
+
         /* 按钮样式 - 针对移动端优化 */
         .control-panel {
             display: flex;
@@ -76,7 +78,7 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        
+
         .btn {
             padding: 16px 18px; /* 移动端更大的点击区域 */
             border: none;
@@ -94,31 +96,31 @@
             min-height: 56px; /* 符合移动端触摸指南 */
             user-select: none;
         }
-        
+
         .btn:active {
             transform: scale(0.98);
         }
-        
+
         .btn-primary {
             background-color: #4a6fa5;
             color: white;
         }
-        
+
         .btn-success {
             background-color: #2e7d32;
             color: white;
         }
-        
+
         .btn-danger {
             background-color: #c62828;
             color: white;
         }
-        
+
         /* 物资行 */
         .items-container {
             margin-bottom: 20px;
         }
-        
+
         .item-row {
             background-color: white;
             border-radius: 12px;
@@ -128,7 +130,7 @@
             border-left: 5px solid #4a6fa5;
             position: relative;
         }
-        
+
         .row-header {
             display: flex;
             justify-content: space-between;
@@ -137,7 +139,7 @@
             padding-bottom: 12px;
             border-bottom: 2px solid #f0f0f0;
         }
-        
+
         .row-number {
             background-color: #4a6fa5;
             color: white;
@@ -150,7 +152,7 @@
             font-weight: bold;
             font-size: 1rem;
         }
-        
+
         .delete-row {
             background-color: #ffebee;
             color: #c62828;
@@ -165,33 +167,33 @@
             transition: all 0.3s;
             user-select: none;
         }
-        
+
         .delete-row:active {
             background-color: #ffcdd2;
             transform: scale(0.95);
         }
-        
+
         /* 表单网格 */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 18px;
         }
-        
+
         @media (min-width: 480px) {
             .form-grid {
                 grid-template-columns: 1fr 1fr;
             }
-            
+
             .form-group.full-width {
                 grid-column: 1 / span 2;
             }
         }
-        
+
         .form-group {
             margin-bottom: 0;
         }
-        
+
         label {
             display: block;
             margin-bottom: 8px;
@@ -199,12 +201,12 @@
             font-size: 0.95rem;
             color: #555;
         }
-        
+
         .required::after {
             content: " *";
             color: #e53935;
         }
-        
+
         /* 输入框优化 - 移动端友好 */
         input, textarea {
             width: 100%;
@@ -218,29 +220,29 @@
             appearance: none;
             font-size: 16px; /* 防止iOS缩放 */
         }
-        
+
         input:focus, textarea:focus {
             outline: none;
             border-color: #4a6fa5;
             box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.15);
         }
-        
+
         /* 移动端输入优化 */
         @media (max-width: 480px) {
             input, textarea {
                 font-size: 16px; /* 防止iOS自动缩放 */
             }
         }
-        
+
         .input-with-btn {
             display: flex;
             gap: 10px;
         }
-        
+
         .input-with-btn input {
             flex: 1;
         }
-        
+
         .quick-btn {
             background-color: #e3f2fd;
             color: #1976d2;
@@ -257,19 +259,19 @@
             justify-content: center;
             user-select: none;
         }
-        
+
         .quick-btn:active {
             background-color: #bbdefb;
             transform: scale(0.95);
         }
-        
+
         /* 图片上传 */
         .image-upload {
             display: flex;
             gap: 12px;
             align-items: center;
         }
-        
+
         .image-btn {
             background-color: #e8f5e9;
             color: #2e7d32;
@@ -286,12 +288,12 @@
             user-select: none;
             text-align: center;
         }
-        
+
         .image-btn:active {
             background-color: #c8e6c9;
             transform: scale(0.98);
         }
-        
+
         .image-preview {
             width: 70px;
             height: 70px;
@@ -300,11 +302,11 @@
             border: 2px solid #ddd;
             display: none;
         }
-        
+
         .image-preview.visible {
             display: block;
         }
-        
+
         /* 自定义数字键盘 - 移动端优化 */
         .number-keyboard {
             position: fixed;
@@ -321,7 +323,7 @@
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
-        
+
         .keyboard-header {
             display: flex;
             justify-content: space-between;
@@ -330,13 +332,13 @@
             padding-bottom: 15px;
             border-bottom: 1px solid #e9ecef;
         }
-        
+
         .keyboard-title {
             font-weight: 700;
             color: #333;
             font-size: 1.1rem;
         }
-        
+
         .close-keyboard {
             background: none;
             border: none;
@@ -351,17 +353,17 @@
             justify-content: center;
             transition: background-color 0.2s;
         }
-        
+
         .close-keyboard:active {
             background-color: #e9ecef;
         }
-        
+
         .keyboard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
         }
-        
+
         .keyboard-btn {
             background-color: white;
             border: 2px solid #e9ecef;
@@ -378,18 +380,18 @@
             min-height: 60px;
             font-weight: 500;
         }
-        
+
         .keyboard-btn:active {
             background-color: #f8f9fa;
             transform: scale(0.95);
         }
-        
+
         .keyboard-btn.special {
             background-color: #e3f2fd;
             color: #1976d2;
             border-color: #bbdefb;
         }
-        
+
         .keyboard-btn.enter {
             background-color: #4a6fa5;
             color: white;
@@ -397,22 +399,22 @@
             grid-column: span 2;
             font-weight: 600;
         }
-        
+
         .keyboard-btn.zero {
             grid-column: span 2;
         }
-        
+
         .keyboard-btn.backspace {
             background-color: #ffebee;
             color: #c62828;
             border-color: #ffcdd2;
         }
-        
+
         .keyboard-active {
             border-color: #4a6fa5 !important;
             box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2) !important;
         }
-        
+
         /* 底部操作栏 - 针对移动端优化 */
         .bottom-actions {
             position: fixed;
@@ -429,11 +431,11 @@
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
-        
+
         .bottom-actions .btn {
             flex: 1;
         }
-        
+
         /* 验证消息 */
         .validation-message {
             color: #e53935;
@@ -442,11 +444,11 @@
             display: none;
             padding-left: 5px;
         }
-        
+
         .validation-message.show {
             display: block;
         }
-        
+
         /* 位置提示 */
         .location-hint {
             font-size: 0.8rem;
@@ -455,7 +457,7 @@
             padding-left: 5px;
             line-height: 1.3;
         }
-        
+
         /* 文件输入样式优化 */
         input[type="file"] {
             position: absolute;
@@ -467,7 +469,7 @@
             clip: rect(0, 0, 0, 0);
             border: 0;
         }
-        
+
         /* 防止长按菜单 */
         input, textarea, button, .image-btn, .quick-btn, .keyboard-btn {
             -webkit-user-select: none;
@@ -475,51 +477,80 @@
             -ms-user-select: none;
             user-select: none;
         }
-        
+
         /* iOS Safari 特定修复 */
         @supports (-webkit-touch-callout: none) {
             body {
                 min-height: -webkit-fill-available;
             }
-            
+
             .number-keyboard, .bottom-actions {
                 padding-bottom: max(15px, env(safe-area-inset-bottom));
             }
         }
-        
+
         /* 动画效果 */
         .fade-in {
             animation: fadeIn 0.3s ease;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         /* 加载状态 */
         .loading {
             opacity: 0.7;
             pointer-events: none;
         }
-        
+
         /* 空状态提示 */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: #666;
         }
-        
+
         .empty-state i {
             font-size: 3rem;
             margin-bottom: 15px;
             color: #ccc;
         }
-        
+
         .empty-state h3 {
             font-size: 1.2rem;
             margin-bottom: 10px;
         }
+
+        /* 在<style>标签中添加以下样式 */
+        .unit-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            min-width: 40px;
+            min-height: 25px;
+        }
+        /* 在<style>标签中添加以下CSS样式 */
+        .keyboard-preview {
+            background-color: #ffffff;
+            border: 2px solid #4a6fa5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #333;
+            text-align: center;
+            min-height: 24px;
+            word-break: break-all;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .keyboard-preview:empty::before {
+            content: "请输入内容...";
+            color: #999;
+        }
+
     </style>
 </head>
 <body>
@@ -528,7 +559,7 @@
             <h1><i class="fas fa-boxes"></i> 物资管理系统</h1>
             <p class="subtitle">点击添加物资，支持拍照上传与Excel导出</p>
         </header>
-        
+
         <div class="control-panel">
             <button class="btn btn-primary" id="addItemBtn">
                 <i class="fas fa-plus-circle"></i> 添加物资行
@@ -537,7 +568,7 @@
                 <i class="fas fa-file-excel"></i> 导出报表
             </button>
         </div>
-        
+
         <div class="items-container" id="itemsContainer">
             <!-- 物资行将通过JS动态添加 -->
             <div class="empty-state" id="emptyState" style="display: none;">
@@ -546,7 +577,7 @@
                 <p>点击上方按钮添加第一条物资记录</p>
             </div>
         </div>
-        
+
         <!-- 自定义数字键盘 -->
         <div class="number-keyboard" id="numberKeyboard">
             <div class="keyboard-header">
@@ -557,7 +588,7 @@
                 <!-- 数字键盘按钮将通过JS动态生成 -->
             </div>
         </div>
-        
+
         <!-- 底部操作栏 -->
         <div class="bottom-actions">
             <button class="btn btn-primary" id="addAnotherBtn">
@@ -568,13 +599,13 @@
             </button>
         </div>
     </div>
-    
+
     <script>
         // 全局变量
         let itemCounter = 0;
         let activeInput = null;
         let lastLocation = "1-1-1";
-        
+
         // 初始化数字键盘按钮
         const keyboardButtons = [
             '1', '2', '3', 'backspace',
@@ -582,38 +613,38 @@
             '7', '8', '9', '-',
             '0', '地', '地面', 'enter'
         ];
-        
+
         // 移动端兼容性检测
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        
+
         // DOM 加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM加载完成，开始初始化...');
-            
+
             try {
                 // 初始化数字键盘
                 initKeyboard();
-                
+
                 // 添加初始物资行
                 setTimeout(addItemRow, 100);
-                
+
                 // 绑定按钮事件 - 使用更可靠的点击事件
                 document.getElementById('addItemBtn').addEventListener('click', addItemRow);
                 document.getElementById('addAnotherBtn').addEventListener('click', addItemRow);
                 document.getElementById('exportBtn').addEventListener('click', exportToExcel);
                 document.getElementById('exportBottomBtn').addEventListener('click', exportToExcel);
                 document.getElementById('closeKeyboard').addEventListener('click', hideKeyboard);
-                
+
                 // 点击空白处隐藏键盘
                 document.addEventListener('touchstart', function(e) {
-                    if (!e.target.closest('.number-keyboard') && 
+                    if (!e.target.closest('.number-keyboard') &&
                         !e.target.classList.contains('keyboard-input') &&
                         !e.target.closest('.input-with-btn')) {
                         hideKeyboard();
                     }
                 });
-                
+
                 // 防止键盘弹出时页面滚动
                 document.addEventListener('focusin', function(e) {
                     if (e.target.classList.contains('keyboard-input')) {
@@ -622,24 +653,34 @@
                         }, 300);
                     }
                 });
-                
+
                 console.log('初始化完成');
             } catch (error) {
                 console.error('初始化错误:', error);
                 alert('初始化出错，请刷新页面重试');
             }
         });
-        
+
         // 初始化数字键盘
         function initKeyboard() {
             try {
                 const keyboardGrid = document.getElementById('keyboardGrid');
+                const keyboardHeader = document.querySelector('.keyboard-header');
+                // 创建预览区域
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'keyboard-preview';
+                previewDiv.id = 'keyboardPreview';
+                previewDiv.style.display = 'none';
+
+                // 将预览区域插入到键盘头部之后
+                keyboardHeader.parentNode.insertBefore(previewDiv, keyboardHeader.nextSibling);
+
                 keyboardGrid.innerHTML = '';
-                
+
                 keyboardButtons.forEach(btn => {
                     const button = document.createElement('div');
                     button.className = 'keyboard-btn';
-                    
+
                     // 设置按钮文本
                     if (btn === 'backspace') {
                         button.innerHTML = '<i class="fas fa-backspace"></i>';
@@ -648,47 +689,48 @@
                     } else {
                         button.textContent = btn;
                     }
-                    
+
                     // 添加特殊类
                     if (btn === 'backspace') button.classList.add('backspace');
                     if (btn === 'enter') button.classList.add('enter');
                     if (btn === '0') button.classList.add('zero');
                     if (['若干', '地', '地面'].includes(btn)) button.classList.add('special');
-                    
+
                     // 添加触摸事件
                     button.addEventListener('touchstart', function(e) {
                         e.preventDefault();
                         this.classList.add('active');
                         handleKeyboardInput(btn);
                     });
-                    
+
                     button.addEventListener('touchend', function(e) {
                         e.preventDefault();
                         this.classList.remove('active');
                     });
-                    
+
                     button.addEventListener('click', function(e) {
                         e.preventDefault();
                         handleKeyboardInput(btn);
                     });
-                    
+
                     keyboardGrid.appendChild(button);
                 });
-                
+
                 console.log('数字键盘初始化完成');
             } catch (error) {
                 console.error('数字键盘初始化错误:', error);
             }
         }
-        
+
         // 处理键盘输入
+        // 修改handleKeyboardInput函数，优化仓储位置输入体验
         function handleKeyboardInput(key) {
             if (!activeInput) return;
-            
+
             const input = activeInput;
             const currentValue = input.value;
             let newValue = currentValue;
-            
+
             if (key === 'backspace') {
                 // 删除字符
                 newValue = currentValue.slice(0, -1);
@@ -705,71 +747,139 @@
             } else if (key === '地面') {
                 // 插入"地面"
                 newValue = currentValue + '地面';
+            } else if (key === '-') {
+                // 连字符处理
+                newValue = currentValue + '-';
             } else {
                 // 插入普通字符
                 newValue = currentValue + key;
             }
-            
+
             input.value = newValue;
-            
+
+            // 更新预览显示
+            const previewArea = document.getElementById('keyboardPreview');
+            if (previewArea) {
+                previewArea.textContent = newValue;
+            }
+
+            // 特殊处理仓储位置输入，确保格式正确
+            if (input.classList.contains('item-location')) {
+                // 自动添加连字符（简单实现）
+                formatLocationInput(input);
+            }
+
             // 触发input事件以验证
             const inputEvent = new Event('input', { bubbles: true });
             input.dispatchEvent(inputEvent);
-            
+
             // 触发change事件
             const changeEvent = new Event('change', { bubbles: true });
             input.dispatchEvent(changeEvent);
         }
-        
+
+        // 辅助函数：格式化仓储位置输入
+        function formatLocationInput(input) {
+            let value = input.value;
+
+            // 移除多余的连字符
+            value = value.replace(/-+/g, '-');
+
+            // 确保格式正确（简单处理）
+            const parts = value.split('-');
+            if (parts.length > 3) {
+                value = parts.slice(0, 3).join('-');
+            }
+
+            input.value = value;
+        }
+
+        // 辅助函数：格式化仓储位置输入
+        function formatLocationInput(input) {
+            let value = input.value;
+
+            // 移除多余的连字符
+            value = value.replace(/-+/g, '-');
+
+            // 确保格式正确（简单处理）
+            const parts = value.split('-');
+            if (parts.length > 3) {
+                value = parts.slice(0, 3).join('-');
+            }
+
+            input.value = value;
+        }
+
         // 显示数字键盘
+        // 修改showKeyboard函数，优化键盘显示时的输入框可见性
         function showKeyboard(input, title) {
             try {
                 activeInput = input;
                 document.getElementById('keyboardTitle').textContent = title || '数字键盘';
+
+                // 添加预览显示
+                const previewArea = document.getElementById('keyboardPreview');
+                if (previewArea) {
+                    previewArea.textContent = input.value || '';
+                    previewArea.style.display = 'block';
+                }
                 document.getElementById('numberKeyboard').style.display = 'block';
-                
-                // 滚动到可视区域
+
+                // 确保输入框在键盘上方可见
                 setTimeout(() => {
-                    const keyboard = document.getElementById('numberKeyboard');
-                    keyboard.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    const rect = input.getBoundingClientRect();
+                    const windowHeight = window.innerHeight;
+                    const keyboardHeight = document.getElementById('numberKeyboard').offsetHeight;
+
+                    // 如果输入框被键盘遮挡，则滚动页面
+                    if (rect.bottom > windowHeight - keyboardHeight) {
+                        const scrollAmount = rect.bottom - (windowHeight - keyboardHeight) + 20;
+                        window.scrollBy(0, scrollAmount);
+                    }
                 }, 100);
-                
+
                 // 隐藏系统键盘
                 input.blur();
             } catch (error) {
                 console.error('显示键盘错误:', error);
             }
         }
-        
+
+
         // 隐藏数字键盘
         function hideKeyboard() {
             try {
                 document.getElementById('numberKeyboard').style.display = 'none';
+                const previewArea = document.getElementById('keyboardPreview');
+                if (previewArea) {
+                    previewArea.style.display = 'none';
+                }
                 activeInput = null;
             } catch (error) {
                 console.error('隐藏键盘错误:', error);
             }
         }
-        
+
         // 添加物资行
+        // 修改addItemRow函数中的单位输入框和仓储位置输入框部分
         function addItemRow() {
             try {
                 itemCounter++;
-                
-                // 生成新的仓储位置
-                const newLocation = generateNextLocation(lastLocation);
+
+                // 生成新的仓储位置（预设格式）
+                const newLocation = "1-1-1"; // 默认格式
                 lastLocation = newLocation;
-                
+
                 const itemsContainer = document.getElementById('itemsContainer');
                 const emptyState = document.getElementById('emptyState');
-                
+
                 // 隐藏空状态提示
                 emptyState.style.display = 'none';
-                
+
                 const itemRow = document.createElement('div');
                 itemRow.className = 'item-row fade-in';
                 itemRow.dataset.id = itemCounter;
-                
+
                 itemRow.innerHTML = `
                     <div class="row-header">
                         <div class="row-number">${itemCounter}</div>
@@ -777,14 +887,14 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
-                    
+
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="required">物资名称</label>
                             <input type="text" class="item-name" placeholder="输入物资名称" data-validate="true" autocomplete="off">
                             <div class="validation-message">物资名称或图片至少填写一项</div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>物资图片</label>
                             <div class="image-upload">
@@ -795,12 +905,12 @@
                                 <img class="image-preview" id="imagePreview${itemCounter}" alt="图片预览">
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>型号</label>
                             <input type="text" class="item-model" placeholder="选填" autocomplete="off">
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="required">数量</label>
                             <div class="input-with-btn">
@@ -809,27 +919,34 @@
                             </div>
                             <div class="validation-message">数量为必填项，请输入数字或"若干"</div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>单位</label>
-                            <input type="text" class="item-unit" placeholder="如：个、件、千克" autocomplete="off">
+                            <div class="input-with-btn">
+                                <input type="text" class="item-unit" value="EA" autocomplete="off">
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <button class="quick-btn unit-btn" data-unit="套" type="button">套</button>
+                                    <button class="quick-btn unit-btn" data-unit="台" type="button">台</button>
+                                    <button class="quick-btn unit-btn" data-unit="KG" type="button">KG</button>
+                                </div>
+                            </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="required">仓储位置</label>
                             <div class="input-with-btn">
-                                <input type="text" class="item-location keyboard-input" placeholder="格式: x-y-z 或 地x-y-z" value="${newLocation}" data-validate="true" data-validate-type="location" autocomplete="off" inputmode="none">
+                                <input type="text" class="item-location keyboard-input" placeholder="输入货架号-层数-格数" value="${newLocation}" data-validate="true" data-validate-type="location" autocomplete="off" inputmode="none">
                                 <button class="quick-btn" data-for="item-location" type="button">地面</button>
                             </div>
                             <div class="location-hint">格式: 货架号-层数-格数 (如: 1-1-1) 或 地面 (如: 地1-2-3)</div>
                             <div class="validation-message">仓储位置格式错误，正确格式: x-y-z 或 地x-y-z (x,y,z为整数)</div>
                         </div>
-                        
+
                         <div class="form-group full-width">
                             <label>备注</label>
                             <textarea class="item-notes" placeholder="选填，可输入文本或上传额外图片" rows="2" autocomplete="off"></textarea>
                         </div>
-                        
+
                         <div class="form-group full-width">
                             <label>备注图片</label>
                             <div class="image-upload">
@@ -842,25 +959,27 @@
                         </div>
                     </div>
                 `;
-                
+
                 itemsContainer.appendChild(itemRow);
-                
+
                 // 绑定新行的事件
                 bindRowEvents(itemRow);
-                
+
                 // 滚动到新添加的行
                 setTimeout(() => {
                     itemRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 100);
-                
+
                 console.log('物资行添加完成');
             } catch (error) {
                 console.error('添加物资行错误:', error);
                 alert('添加物资行失败，请重试');
             }
         }
-        
+
+
         // 绑定行内事件
+        // 修改bindRowEvents函数，添加单位快捷按钮事件
         function bindRowEvents(row) {
             try {
                 // 删除按钮
@@ -876,12 +995,12 @@
                         }, 300);
                     }
                 });
-                
+
                 // 图片上传
                 const itemImageInput = row.querySelector('.item-image');
                 const itemImagePreview = row.querySelector('.image-preview');
                 const itemImageLabel = row.querySelector('.image-btn');
-                
+
                 itemImageInput.addEventListener('change', function(e) {
                     if (e.target.files && e.target.files[0]) {
                         const reader = new FileReader();
@@ -889,19 +1008,19 @@
                             itemImagePreview.src = event.target.result;
                             itemImagePreview.classList.add('visible');
                             itemImageLabel.querySelector('span').textContent = '已上传';
-                            
+
                             // 验证物资名称/图片至少有一个
                             validateRow(row);
                         };
                         reader.readAsDataURL(e.target.files[0]);
                     }
                 });
-                
+
                 // 备注图片上传
                 const notesImageInput = row.querySelector('.notes-image');
                 const notesImagePreview = row.querySelectorAll('.image-preview')[1];
                 const notesImageLabel = row.querySelectorAll('.image-btn')[1];
-                
+
                 notesImageInput.addEventListener('change', function(e) {
                     if (e.target.files && e.target.files[0]) {
                         const reader = new FileReader();
@@ -913,7 +1032,7 @@
                         reader.readAsDataURL(e.target.files[0]);
                     }
                 });
-                
+
                 // 数量输入框 - 点击显示数字键盘
                 const quantityInput = row.querySelector('.item-quantity');
                 quantityInput.addEventListener('focus', function(e) {
@@ -921,32 +1040,37 @@
                     this.classList.add('keyboard-active');
                     showKeyboard(this, '输入数量 (可输入"若干")');
                 });
-                
+
                 quantityInput.addEventListener('touchstart', function(e) {
                     e.preventDefault();
                     this.focus();
                 });
-                
+
                 // 数量快速按钮 - "若干"
                 const quantityQuickBtn = row.querySelector('.quick-btn[data-for="item-quantity"]');
                 quantityQuickBtn.addEventListener('click', function() {
                     quantityInput.value = '若干';
                     validateRow(row);
                 });
-                
+
                 // 仓储位置输入框 - 点击显示数字键盘
                 const locationInput = row.querySelector('.item-location');
                 locationInput.addEventListener('focus', function(e) {
                     e.preventDefault();
                     this.classList.add('keyboard-active');
                     showKeyboard(this, '输入仓储位置');
+
+                    // 确保输入框可见
+                    setTimeout(() => {
+                        this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
                 });
-                
+
                 locationInput.addEventListener('touchstart', function(e) {
                     e.preventDefault();
                     this.focus();
                 });
-                
+
                 // 仓储位置快速按钮 - "地面"
                 const locationQuickBtn = row.querySelector('.quick-btn[data-for="item-location"]');
                 locationQuickBtn.addEventListener('click', function() {
@@ -957,27 +1081,38 @@
                     }
                     validateRow(row);
                 });
-                
+
+                // 单位快捷按钮事件
+                const unitBtns = row.querySelectorAll('.unit-btn');
+                const unitInput = row.querySelector('.item-unit');
+                unitBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const unit = this.getAttribute('data-unit');
+                        unitInput.value = unit;
+                    });
+                });
+
                 // 输入验证
                 const inputs = row.querySelectorAll('input[data-validate="true"], textarea');
                 inputs.forEach(input => {
                     input.addEventListener('input', function() {
                         validateRow(row);
                     });
-                    
+
                     input.addEventListener('change', function() {
                         validateRow(row);
                     });
                 });
-                
+
                 // 初始验证
                 setTimeout(() => validateRow(row), 100);
-                
+
             } catch (error) {
                 console.error('绑定行事件错误:', error);
             }
         }
-        
+
+
         // 更新行号
         function updateRowNumbers() {
             const rows = document.querySelectorAll('.item-row');
@@ -987,118 +1122,118 @@
                 row.dataset.id = index + 1;
             });
         }
-        
+
         // 检查是否为空状态
         function checkEmptyState() {
             const rows = document.querySelectorAll('.item-row');
             const emptyState = document.getElementById('emptyState');
-            
+
             if (rows.length === 0) {
                 emptyState.style.display = 'block';
             } else {
                 emptyState.style.display = 'none';
             }
         }
-        
+
         // 生成下一个仓储位置
         function generateNextLocation(currentLocation) {
             // 如果当前位置无效，返回默认值
             if (!validateLocation(currentLocation)) {
                 return "1-1-1";
             }
-            
+
             // 解析当前位置
             let isGround = false;
             let location = currentLocation;
-            
+
             if (location.startsWith('地')) {
                 isGround = true;
                 location = location.substring(1);
             }
-            
+
             const parts = location.split('-').map(Number);
-            
+
             // 递增逻辑：先递增格数，满10后递增层数，满5后递增货架号
             parts[2] += 1; // 格数+1
-            
+
             if (parts[2] > 10) {
                 parts[2] = 1;
                 parts[1] += 1; // 层数+1
-                
+
                 if (parts[1] > 5) {
                     parts[1] = 1;
                     parts[0] += 1; // 货架号+1
                 }
             }
-            
+
             const newLocation = parts.join('-');
             return isGround ? '地' + newLocation : newLocation;
         }
-        
+
         // 验证仓储位置格式
         function validateLocation(location) {
             if (!location || typeof location !== 'string') return false;
-            
+
             // 检查是否为地面格式
             if (location.startsWith('地')) {
                 location = location.substring(1);
             }
-            
+
             // 检查格式 x-y-z
             const parts = location.split('-');
             if (parts.length !== 3) return false;
-            
+
             // 检查是否为整数
             for (let part of parts) {
                 if (!/^\d+$/.test(part)) return false;
                 const num = parseInt(part);
                 if (isNaN(num) || num < 0) return false;
             }
-            
+
             return true;
         }
-        
+
         // 验证数量格式
         function validateQuantity(quantity) {
             if (quantity === '若干') return true;
             if (!quantity || quantity.trim() === '') return false;
-            
+
             // 检查是否为数字（包括小数）
             const num = parseFloat(quantity);
             return !isNaN(num) && isFinite(num);
         }
-        
+
         // 验证整行数据
         function validateRow(row) {
             let isValid = true;
-            
+
             // 验证物资名称或图片至少有一个
             const itemName = row.querySelector('.item-name').value.trim();
             const itemImage = row.querySelector('.item-image').files[0];
             const nameValidationMsg = row.querySelector('.validation-message');
-            
+
             if (!itemName && !itemImage) {
                 nameValidationMsg.classList.add('show');
                 isValid = false;
             } else {
                 nameValidationMsg.classList.remove('show');
             }
-            
+
             // 验证数量
             const quantity = row.querySelector('.item-quantity').value.trim();
             const quantityValidationMsg = row.querySelectorAll('.validation-message')[1];
-            
+
             if (!validateQuantity(quantity)) {
                 quantityValidationMsg.classList.add('show');
                 isValid = false;
             } else {
                 quantityValidationMsg.classList.remove('show');
             }
-            
+
             // 验证仓储位置
             const location = row.querySelector('.item-location').value.trim();
             const locationValidationMsg = row.querySelectorAll('.validation-message')[2];
-            
+
             if (!validateLocation(location)) {
                 locationValidationMsg.classList.add('show');
                 isValid = false;
@@ -1107,38 +1242,38 @@
                 // 更新最后位置记录
                 lastLocation = location;
             }
-            
+
             // 更新行样式
             if (isValid) {
                 row.style.borderLeftColor = '#2e7d32'; // 绿色表示有效
             } else {
                 row.style.borderLeftColor = '#e53935'; // 红色表示无效
             }
-            
+
             return isValid;
         }
-        
+
         // 验证所有行
         function validateAllRows() {
             const rows = document.querySelectorAll('.item-row');
             let allValid = true;
-            
+
             rows.forEach(row => {
                 if (!validateRow(row)) {
                     allValid = false;
                 }
             });
-            
+
             return allValid;
         }
-        
+
         // 收集所有行数据
         function collectAllData() {
             const rows = document.querySelectorAll('.item-row');
             const data = [];
-            
-            rows.forEach(row => {
-                // 只收集有效数据
+            const images = []; // 存储图片数据
+
+            rows.forEach((row, index) => {
                 if (validateRow(row)) {
                     const rowData = {
                         行号: row.querySelector('.row-number').textContent,
@@ -1149,69 +1284,161 @@
                         仓储位置: row.querySelector('.item-location').value.trim(),
                         备注: row.querySelector('.item-notes').value.trim(),
                     };
-                    
+
                     // 处理物资图片
                     const itemImageInput = row.querySelector('.item-image');
                     if (itemImageInput.files && itemImageInput.files[0]) {
                         rowData['物资图片'] = `[图片: ${itemImageInput.files[0].name}]`;
+                        images.push({
+                            rowIndex: index,
+                            col: '物资图片',
+                            file: itemImageInput.files[0],
+                            type: 'item'
+                        });
                     } else {
                         rowData['物资图片'] = '';
                     }
-                    
+
                     // 处理备注图片
                     const notesImageInput = row.querySelector('.notes-image');
                     if (notesImageInput.files && notesImageInput.files[0]) {
                         rowData['备注图片'] = `[图片: ${notesImageInput.files[0].name}]`;
+                        images.push({
+                            rowIndex: index,
+                            col: '备注图片',
+                            file: notesImageInput.files[0],
+                            type: 'notes'
+                        });
                     } else {
                         rowData['备注图片'] = '';
                     }
-                    
+
                     data.push(rowData);
                 }
             });
-            
-            return data;
+
+            return { data, images };
         }
-        
-        // 导出为Excel
-        function exportToExcel() {
+
+        // 新增函数：将图片文件转换为base64编码
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // 修改导出为Excel的函数
+        async function exportToExcel() {
             try {
                 // 验证所有行
                 if (!validateAllRows()) {
                     alert('部分数据填写有误，请检查红色标记的行，修正后再导出。');
                     return;
                 }
-                
-                const data = collectAllData();
-                
+
+                const result = collectAllData();
+                const data = result.data;
+                const imageFiles = result.images;
+
                 if (data.length === 0) {
                     alert('没有有效数据可导出。');
                     return;
                 }
-                
-                // 创建工作簿和工作表
-                const ws = XLSX.utils.json_to_sheet(data);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "物资清单");
-                
-                // 设置列宽
-                const wscols = [
-                    {wch: 6},  // 行号
-                    {wch: 15}, // 物资名称
-                    {wch: 12}, // 物资图片
-                    {wch: 15}, // 型号
-                    {wch: 10}, // 数量
-                    {wch: 8},  // 单位
-                    {wch: 15}, // 仓储位置
-                    {wch: 20}, // 备注
-                    {wch: 12}, // 备注图片
+
+                // 创建工作簿
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('物资清单');
+
+                // 定义列（确保顺序与数据一致）
+                const columns = [
+                    '行号', '物资名称', '物资图片', '型号', '数量', '单位', '仓储位置', '备注', '备注图片'
                 ];
-                ws['!cols'] = wscols;
-                
-                // 生成Excel文件并下载
+
+                worksheet.columns = [
+                    { header: '行号', key: '行号', width: 6 },
+                    { header: '物资名称', key: '物资名称', width: 15 },
+                    { header: '物资图片', key: '物资图片', width: 12 },
+                    { header: '型号', key: '型号', width: 15 },
+                    { header: '数量', key: '数量', width: 10 },
+                    { header: '单位', key: '单位', width: 8 },
+                    { header: '仓储位置', key: '仓储位置', width: 15 },
+                    { header: '备注', key: '备注', width: 20 },
+                    { header: '备注图片', key: '备注图片', width: 12 }
+                ];
+
+                // 添加数据行
+                data.forEach(rowData => {
+                    worksheet.addRow(rowData);
+                });
+
+                // 设置行高
+                worksheet.eachRow((row, rowNumber) => {
+                    row.height = 60;
+                });
+
+                // 处理图片嵌入
+                if (imageFiles.length > 0) {
+                    for (const img of imageFiles) {
+                        try {
+                            const base64 = await fileToBase64(img.file);
+
+                            // 获取图片扩展名
+                            const ext = img.file.name.split('.').pop().toLowerCase();
+
+                            // 添加图片到工作簿
+                            const imageId = workbook.addImage({
+                                base64: base64,
+                                extension: ext
+                            });
+
+                            // 精确计算单元格位置
+                            // 获取列在数组中的索引位置（从0开始）
+                            const colIndexInArray = columns.indexOf(img.col);
+                            // Excel列索引（从1开始）
+                            const excelColIndex = colIndexInArray + 1;
+                            // 行索引（标题行+数据行索引，从1开始）
+                            const excelRowIndex = img.rowIndex + 2;
+
+                            console.log(`处理图片: ${img.col}, 数组索引: ${colIndexInArray}, Excel列: ${excelColIndex}, 行: ${excelRowIndex}`);
+
+                            if (colIndexInArray !== -1) {
+                                // 插入图片到指定单元格（居中显示）
+                                worksheet.addImage(imageId, {
+                                    tl: {
+                                        col: colIndexInArray,
+                                        row: img.rowIndex + 1  // Excel行索引从0开始，但addImage需要从0开始
+                                    },
+                                    br: {
+                                        col: colIndexInArray + 1,
+                                        row: img.rowIndex + 2
+                                    },
+                                    editAs: 'oneCell' // 图片随单元格移动
+                                });
+
+                                // 清除单元格中的文本内容
+                                const cell = worksheet.getCell(excelRowIndex, excelColIndex);
+                                cell.value = '';
+                            }
+                        } catch (err) {
+                            console.error('图片处理失败:', err);
+                        }
+                    }
+                }
+
+                // 生成并下载文件
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 const fileName = `物资清单_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.xlsx`;
-                XLSX.writeFile(wb, fileName);
-                
+
+                // 下载文件
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+
                 alert(`已成功导出 ${data.length} 条物资记录到文件: ${fileName}`);
             } catch (error) {
                 console.error('导出Excel错误:', error);
