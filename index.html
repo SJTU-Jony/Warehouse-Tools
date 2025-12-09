@@ -866,8 +866,17 @@
             try {
                 itemCounter++;
 
-                // 生成新的仓储位置（预设格式）
-                const newLocation = "1-1-1"; // 默认格式
+                // 获取上一行的仓储位置，用于递增计算
+                let newLocation = "1-1-1"; // 默认值
+                const existingRows = document.querySelectorAll('.item-row');
+                if (existingRows.length > 0) {
+                    // 获取最后一行的仓储位置
+                    const lastRow = existingRows[existingRows.length - 1];
+                    const lastLocationInput = lastRow.querySelector('.item-location');
+                    if (lastLocationInput && lastLocationInput.value) {
+                        newLocation = generateNextLocation(lastLocationInput.value);
+                    }
+                }
                 lastLocation = newLocation;
 
                 const itemsContainer = document.getElementById('itemsContainer');
@@ -1136,6 +1145,7 @@
         }
 
         // 生成下一个仓储位置
+       // 修改generateNextLocation函数，完善递增逻辑
         function generateNextLocation(currentLocation) {
             // 如果当前位置无效，返回默认值
             if (!validateLocation(currentLocation)) {
@@ -1169,6 +1179,7 @@
             const newLocation = parts.join('-');
             return isGround ? '地' + newLocation : newLocation;
         }
+
 
         // 验证仓储位置格式
         function validateLocation(location) {
